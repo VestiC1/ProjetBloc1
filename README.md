@@ -30,3 +30,28 @@ python -m venv .venv
 ```bash
 pip install -r requirements.txt
 ```
+
+# Creation des BDD :
+
+## Configuration des BDD dans docker-compose.yml
+
+## Démarrer les conteneurs :
+```bash
+docker compose up -d
+```
+
+## Vérifier les conteneurs :
+```bash
+docker ps
+```
+
+## Accéder aux bases de données :
+
+### PostgreSQL :
+```bash
+docker exec -it pgvector psql -U postgres
+```
+### PostgreSQL :
+```bash
+docker exec -it mongodb mongosh -u admin -p admin00
+```
