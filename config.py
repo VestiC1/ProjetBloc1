@@ -21,5 +21,8 @@ mongo_config = {
     'password': os.getenv('MONGO_PASSWORD')
 }
 
-print("PostgreSQL Configuration:", db_config)
-print("MongoDB Configuration:", mongo_config)
+# Configuration de l'API IGDB
+igdb_config = {
+    'client_id': os.getenv('IGDB_CLIENT_ID'),
+    'client_secret': os.getenv('IGDB_CLIENT_SECRET')
+}
