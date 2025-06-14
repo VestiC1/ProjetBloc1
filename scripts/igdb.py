@@ -35,7 +35,7 @@ def fetch_games(access_token, year:int, limit:int=500, page:int=1 ):
     }
 
     payload = f"""
-    fields name, cover.url, rating, rating_count, involved_companies.company.name, involved_companies.publisher, involved_companies.developer, genres.name, release_dates.platform.name, release_dates.date, involved_companies.company.websites.url, storyline, summary, keywords.name;
+    fields name, cover.url, rating, rating_count, involved_companies.company.name, involved_companies.publisher, involved_companies.developer, genres.name, release_dates.platform.name, release_dates.date, involved_companies.company.websites.url, involved_companies.company.country, storyline, summary, keywords.name;
     where release_dates.y = {year};
     limit {limit};
     offset {offset};
