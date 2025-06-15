@@ -1,8 +1,9 @@
-from .crud import db_connect, add_company, add_genre, add_platform, add_game, add_game_platform, add_game_genre, add_game_company, db_close
 import requests
+from .crud import db_connect, add_company, add_genre, add_platform, add_game, add_game_platform, add_game_genre, add_game_company, db_close
 from config import igdb_config
 from pprint import pprint
 from datetime import datetime
+
 
 class EndOfPageError(Exception):
     """Erreur de in de page"""
@@ -73,20 +74,21 @@ def map_and_insert_data(games):
                 cover_url=f"https:{cover_url}".replace("t_thumb", "t_cover_big")
             rating = game.get('rating')
             rating_count = game.get('rating_count')
+            rating_opencritic = None
 
-            add_game(conn, game_id, name, cover_url, rating, rating_count)
+            add_game(conn, game_id, name, cover_url, rating, rating_count, rating_opencritic)
 
             involved_companies=game.get('involved_companies', [])
 
-            for company_info in involved_companies:
-                company_id = company_info.get('company', {}).get('id')
-                is_developer = company_info.get('developer', False)
-                is_publisher = company_info.get('publisher', False)
-                
-                company_name = company_info.get('company', {}).get('name')
-                company_website = company_info.get('company', {}).get('websites',[{}])[0].get('url')
-
-                add_company(conn, id=company_id, name=company_name, website=company_website)
+            for involved_company in involved_companies:
+                company         = involved_company.get('company', {})
+                company_id      = company.get('id')
+                company_name    = company.get('name')
+                company_website = company.get('websites',[{}])[0].get('url')
+                country_id      = company.get('country')
+                is_developer    = involved_company.get('developer', False)
+                is_publisher    = involved_company.get('publisher', False)
+                add_company(conn, id=company_id, name=company_name, website=company_website, id_country=country_id)
                 add_game_company(conn, id_game=game_id, id_company=company_id, developer=is_developer, publisher=is_publisher)
 
             for genre in game.get('genres', []):
@@ -109,7 +111,7 @@ def map_and_insert_data(games):
         except Exception as e:
             print(f"An error occurred while processing game {game.get('name')}: {e}")
             #pprint(game)
-            print(isotimestamp)
+            #print(isotimestamp)
             
             conn.rollback()
 
@@ -121,7 +123,7 @@ if __name__ == "__main__":
         done  = False
         page  = 1
         limit = 500
-        year  = 2025
+        year  = 2024
         while not done:
             try :
                 print(f"\rPage : {page}", end="\033[0K", flush=True )
