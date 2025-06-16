@@ -113,6 +113,12 @@ def create_game_companies(conn):
     """))
     conn.commit()
 
+def create_extension_pg_trgm(conn):
+    conn.execute(text("""
+        CREATE EXTENSION IF NOT EXISTS pg_trgm;
+    """))
+    conn.commit()
+
 def create_all(conn):
     create_countries(conn)
     create_companies(conn)
@@ -122,6 +128,7 @@ def create_all(conn):
     create_game_platforms(conn)
     create_game_genres(conn)
     create_game_companies(conn)
+    create_extension_pg_trgm(conn)
 
 def drop_all(conn):
     conn.execute(text("DROP TABLE IF EXISTS \"Game_Company\" CASCADE;"))
@@ -200,6 +207,6 @@ def add_game_company(conn, id_game, id_company, developer, publisher):
 
 if __name__ == "__main__":
     conn = db_connect()
-    drop_all(conn)
+    #drop_all(conn)
     create_all(conn)
     db_close(conn)

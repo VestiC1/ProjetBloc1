@@ -111,7 +111,6 @@ def map_and_insert_data(games):
         except Exception as e:
             print(f"An error occurred while processing game {game.get('name')}: {e}")
             #pprint(game)
-            #print(isotimestamp)
             
             conn.rollback()
 
