@@ -49,9 +49,8 @@ docker ps
 
 ### PostgreSQL :
 ```bash
-docker exec -it pgvector psql -U postgres
+lazydocker
 ```
-### PostgreSQL :
-```bash
-docker exec -it mongodb mongosh -u admin -p admin00
-```
+
+### ElastiSearch
+Creer manuellement le dossier elk_data pour le volume
