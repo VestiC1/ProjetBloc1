@@ -26,3 +26,11 @@ igdb_config = {
     'client_id': os.getenv('IGDB_CLIENT_ID'),
     'client_secret': os.getenv('IGDB_CLIENT_SECRET')
 }
+
+# Configuration Elasticsearch
+elasticsearch_config = {
+    'url': os.getenv('ELASTICSEARCH_URL'),
+    'username': os.getenv('ELASTICSEARCH_USERNAME'),
+    'password': os.getenv('ELASTICSEARCH_PASSWORD'),
+    'verify_certs': False
+}

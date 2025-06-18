@@ -1,4 +1,4 @@
-version: '3.8'
+
 services:
   postgres:
     image: pgvector/pgvector:pg17
@@ -8,15 +8,33 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - /home/steve/Documents/FormationIA/Certif/ProjetBloc1/volumes/postgres_data:/var/lib/postgresql/data
+      - ../volumes/postgres_data:/var/lib/postgresql/data
   mongodb:
     image: mongo:latest
     container_name: mongodb
-    user: "${UID}:${GID}"
+    #user: "${UID}:${GID}"
     volumes:
-      - /home/steve/Documents/FormationIA/Certif/ProjetBloc1/volumes/mongodb_data:/data/db
+      - ../volumes/mongodb_data:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
     ports:
       - "27017:27017"
+  elasticsearch:
+    image: elasticsearch:9.0.2
+    container_name: elasticsearch-single
+    environment:
+      - node.name=elasticsearch-single
+      - cluster.name=single-node-cluster
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "ELASTIC_PASSWORD=${ELASTIC_PASSWORD}"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ../volumes/elk_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"

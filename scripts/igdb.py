@@ -3,6 +3,7 @@ from .crud import db_connect, add_company, add_genre, add_platform, add_game, ad
 from config import igdb_config
 from pprint import pprint
 from datetime import datetime
+from .elastic import create_index, create_document, index_mapping
 
 
 class EndOfPageError(Exception):
@@ -56,8 +57,34 @@ def fetch_games(access_token, year:int, limit:int=500, page:int=1 ):
 def insert_postgres(game):
     pass
 
-def insert_mongo(game):
-    pass
+def insert_elasticsearch(_id, title, summary, storyline, keywords):
+    game_document = {
+        "title": title,
+        "summary": summary,
+        "storyline": storyline,
+        "keywords": keywords
+    }
+    create_document("games", _id, game_document, False)
+
+def extract_data(game):
+    """Extraction des données de l'API IGDB"""
+    # Pour Elasctic
+    game_id = game.get('id')
+    name = game.get('name')
+    keywords=[]
+    for keyword in game.get("keywords", []):
+        keywords.append(keyword["name"])
+    elastic_data={
+        "_id":game_id,
+        "title":name,
+        "summary": game.get("summary"),
+        "storyline": game.get("storyline"),
+        "keywords": keywords
+    }
+    # TODO: Pour Postgres
+    #....
+    return elastic_data
+
 
 
 
@@ -67,6 +94,9 @@ def map_and_insert_data(games):
     for game in games:
         try:
             #pprint(game)
+            elastic_data=extract_data(game)
+            #pprint(elastic_data)
+            insert_elasticsearch(**elastic_data)
             game_id = game.get('id')
             name = game.get('name')
             cover_url = game.get('cover', {}).get('url')
@@ -117,6 +147,8 @@ def map_and_insert_data(games):
     db_close(conn)
 
 if __name__ == "__main__":
+    create_index("games", index_mapping)
+
     access_token = get_access_token(IGDB_CLIENT_ID, IGDB_CLIENT_SECRET)
     if access_token:
         done  = False
