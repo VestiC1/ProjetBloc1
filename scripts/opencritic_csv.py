@@ -1,14 +1,16 @@
-import requests
 from bs4 import BeautifulSoup
 import csv
+from requests_ratelimiter import LimiterSession
+
+session = LimiterSession(per_second=1) # 1 requête par seconde au maximum
 
 def scrape_opencritic_page(url):
-    response = requests.get(url)
+    response = session.get(url)
     response.raise_for_status()
     soup = BeautifulSoup(response.text, 'html.parser')
 
     games = []
-    game_elements = soup.find_all('div', class_='mobile-game-display')  # Ajustez ce sélecteur selon la structure réelle de la page
+    game_elements = soup.find_all('div', class_='mobile-game-display')
     is_terminated = False
 
     for game_element in game_elements:
@@ -33,7 +35,7 @@ def scrape_all_pages(base_url):
 
     page=1
     while not done:
-        url = f"{base_url}?page={page}"  # Ajustez l'URL selon la structure de pagination du site
+        url = f"{base_url}?page={page}"
         print(f"Scraping page {page}...")
         games, done = scrape_opencritic_page(url)
         all_games.extend(games)
@@ -41,10 +43,12 @@ def scrape_all_pages(base_url):
 
     return all_games
 
-# Exemple d'utilisation
-base_url = "https://opencritic.com/browse/all/2024"
+def main():
+    base_url = "https://opencritic.com/browse/all/2024"
 
-all_games = scrape_all_pages(base_url)
-save_to_csv(all_games, 'donnees/opencritic_games.csv')
+    all_games = scrape_all_pages(base_url)
+    save_to_csv(all_games, 'donnees/opencritic_games.csv')
 
-print("Les données ont été enregistrées dans opencritic_games.csv")
+    print("Les données ont été enregistrées dans opencritic_games.csv")
+
+if __name__ == "__main__": main()

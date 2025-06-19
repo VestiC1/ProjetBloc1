@@ -44,5 +44,8 @@ def update_opencritic_ratings(games_csv):
     finally:
         db_close(conn)
 
-games_csv = read_csv('donnees/opencritic_games.csv')
-update_opencritic_ratings(games_csv)
+def main():
+    games_csv = read_csv('donnees/opencritic_games.csv')
+    update_opencritic_ratings(games_csv)
+
+if __name__ == "__main__": main()

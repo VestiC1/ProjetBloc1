@@ -5,18 +5,6 @@ import json
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-def elastic_health():
-    try:
-        es = Elasticsearch(
-            [elasticsearch_config["url"]],
-            basic_auth=(elasticsearch_config["username"], elasticsearch_config["password"]),
-            verify_certs=elasticsearch_config["verify_certs"],
-            ssl_show_warn=False # Désactive les avertissements SSL
-        )
-        health = es.cluster.health()
-        print(f"Connected! Cluster status: {health['status']}")
-    except Exception as e:
-        print(f"Connection failed: {e}")
 
 es = Elasticsearch(
     [elasticsearch_config["url"]],
@@ -24,6 +12,13 @@ es = Elasticsearch(
     verify_certs=elasticsearch_config["verify_certs"],
     ssl_show_warn=False # Désactive les avertissements SSL
 )
+
+def elastic_health():
+    try:
+        health = es.cluster.health()
+        print(f"Connected! Cluster status: {health['status']}")
+    except Exception as e:
+        print(f"Connection failed: {e}")
 
 # Définir le mappage de l'index
 index_mapping = {
@@ -37,9 +32,8 @@ index_mapping = {
     }
 }
 
-
 def create_index(index_name, mapping):
-    """Créer l'index"""
+    """ Créer un index """
     try:
         if not es.indices.exists(index=index_name):
             es.indices.create(index=index_name, body=mapping)
@@ -49,8 +43,8 @@ def create_index(index_name, mapping):
     except Exception as e:
         print(f"Error creating index: {e}")
 
-# Vérifier si l'index existe
 def check_index_exists(index_name):
+    """ Vérifier si l'index existe """
     try:
         exists = es.indices.exists(index=index_name)
         if exists:
@@ -60,8 +54,8 @@ def check_index_exists(index_name):
     except Exception as e:
         print(f"Error checking index: {e}")
 
-# Obtenir des infos sur l'index
 def get_index_info(index_name):
+    """ Obtenir des infos sur un index """
     try:
         info = es.indices.get(index=index_name)
         print(f"Info for index '{index_name}':")
@@ -70,6 +64,7 @@ def get_index_info(index_name):
         print(f"Error getting index info: {e}")
 
 def delete_index(index_name):
+    """ Supprimer un index """
     try:
         if es.indices.exists(index=index_name):
             es.indices.delete(index=index_name)
@@ -79,8 +74,8 @@ def delete_index(index_name):
     except Exception as e:
         print(f"Error deleting index: {e}")
 
-# Création d'un Document
 def create_document(index_name, _id, document, verbose=True):
+    """ Creer un Document """
     try:
         response = es.index(index=index_name, id=_id, document=document)
         if verbose :
@@ -90,8 +85,8 @@ def create_document(index_name, _id, document, verbose=True):
         print(f"Error creating document: {e}")
         return None
 
-# Suppression d'un Document
 def delete_document(index_name, document_id):
+    """ Supprimer un Document """
     try:
         response = es.delete(index=index_name, id=document_id)
         print(f"Document deleted: {response['_id']}")
@@ -100,8 +95,8 @@ def delete_document(index_name, document_id):
         print(f"Error deleting document: {e}")
         return None
 
-# Affichage d'un Document
 def get_document(index_name, document_id):
+    """ Afficher un Document"""
     try:
         response = es.get(index=index_name, id=document_id)
         print(f"Document retrieved: {response['_source']}")
@@ -110,8 +105,8 @@ def get_document(index_name, document_id):
         print(f"Error retrieving document: {e}")
         return None
 
-# Lister les Documents d'un Index
 def list_documents(index_name):
+    """ Lister les Documents d'un Index """
     try:
         response = es.search(index=index_name, query={"match_all": {}}, size=500)
         print(f"Documents in index '{index_name}':")
@@ -124,6 +119,7 @@ def list_documents(index_name):
         return None
     
 def count_documents(index_name):
+    """ Compter les Documents d'un index """
     try:
         # Utiliser l'API de comptage pour obtenir le nombre de documents dans l'index
         count = es.count(index=index_name)['count']
@@ -136,17 +132,18 @@ def count_documents(index_name):
 
 
 if __name__ == "__main__":
+    #elastic_health()
     #create_index("games", index_mapping)
     #check_index_exists("games")
     #get_index_info("games")
     #delete_index("games")
-    #count_documents("games")
+    count_documents("games")
 
     # Exemple de document
     game_document = {
-        "title": "cuicui",
+        "title": "CuicuiWorld",
         "summary": "Un jeu d'aventure passionnant.",
-        "storyline": "Un héros part à l'aventure pour sauver le monde.",
+        "storyline": "Un oiseau part à l'aventure pour sauver le monde.",
         "keywords": ["aventure", "action", "héros"]
     }
 
@@ -161,6 +158,3 @@ if __name__ == "__main__":
 
     # Supprimer un document
     #delete_document("games", 1)
-
-    # Status
-    #elastic_health()
