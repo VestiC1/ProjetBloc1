@@ -1,5 +1,5 @@
 from elasticsearch import Elasticsearch
-from config import elasticsearch_config
+from app.config import elasticsearch_config
 from pprint import pprint
 import json
 import urllib3
