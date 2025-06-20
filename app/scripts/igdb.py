@@ -1,6 +1,6 @@
 import requests
 from .crud import db_connect, add_company, add_genre, add_platform, add_game, add_game_platform, add_game_genre, add_game_company, db_close
-from config import igdb_config
+from app.config import igdb_config
 from pprint import pprint
 from datetime import datetime
 from .elastic import create_index, create_document, index_mapping
