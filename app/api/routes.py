@@ -1,10 +1,10 @@
 from models.crudpostgres import db_connect, db_close
 from sqlalchemy import text
 from fastapi import APIRouter, HTTPException, Query
-from schemas.games import GameShort, GameWithGenres
+from schemas.games import GameShort, GameWithGenres, GameDetail
 from typing import List
 
-# parametre a voir prefix="/api/v1", tags=["games"]
+# parametres a voir prefix="/api/v1", tags=["games"]
 router = APIRouter()
 
 @router.get("/games", response_model=List[GameShort])
@@ -22,6 +22,45 @@ def get_games(
         })
         games = [dict(row._mapping) for row in result]
         return games
+    finally:
+        db_close(conn)
+
+@router.get("/games/{game_id}", response_model=GameDetail)
+def get_game(game_id: int):
+    """Récupérer les détails d'un jeu spécifique"""
+    conn = db_connect()
+    try:
+        result = conn.execute(text('''
+            SELECT g.id, g.name, g.cover, g.rating, g.rating_count, g.rating_opencritic,
+                   array_agg(DISTINCT ge.name) as genres,
+                   array_agg(DISTINCT p.name) as platforms,
+                   array_agg(DISTINCT c.name) as companies
+            FROM "Game" g
+            LEFT JOIN "Game_Genre" gg ON g.id = gg.id_game
+            LEFT JOIN "Genre" ge ON gg.id_genre = ge.id
+            LEFT JOIN "Game_Plateform" gp ON g.id = gp.id_game
+            LEFT JOIN "Plateform" p ON gp.id_plateform = p.id
+            LEFT JOIN "Game_Company" gc ON g.id = gc.id_game
+            LEFT JOIN "Company" c ON gc.id_company = c.id
+            WHERE g.id = :game_id
+            GROUP BY g.id;
+        '''), {"game_id": game_id})
+
+        game = result.fetchone()
+        if not game:
+            raise HTTPException(status_code=404, detail="Jeu non trouvé")
+        return dict(game._mapping)
+    finally:
+        db_close(conn)
+
+@router.get("/genres", response_model=List[str])
+def get_genres():
+    """Récupérer la liste des genres"""
+    conn = db_connect()
+    try:
+        result = conn.execute(text('SELECT name FROM "Genre";'))
+        genres = [row[0] for row in result]
+        return genres
     finally:
         db_close(conn)
 
