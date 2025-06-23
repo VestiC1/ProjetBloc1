@@ -1,6 +1,6 @@
 import csv
 from sqlalchemy import text
-from .crud import db_connect, db_close
+from .crudpostgres import db_connect, db_close
 
 def read_csv(file_path):
     games = []
@@ -45,7 +45,7 @@ def update_opencritic_ratings(games_csv):
         db_close(conn)
 
 def main():
-    games_csv = read_csv('donnees/opencritic_games.csv')
+    games_csv = read_csv('../donnees/opencritic_games.csv')
     update_opencritic_ratings(games_csv)
 
 if __name__ == "__main__": main()

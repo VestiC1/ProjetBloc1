@@ -1,7 +1,8 @@
 import csv
 import sys
 from typing import List
-from .crud import db_connect, db_close, add_country 
+from .crudpostgres import db_connect, db_close, add_country
+
 
 # Augmente la limite de taille des champs CSV pour "Geo Shape"
 csv.field_size_limit(sys.maxsize)
@@ -47,7 +48,7 @@ def inject_csv(conn, file : str ):
             insert_country(conn=conn, row=row)
 
 def main():
-    file = "donnees/countries-codes.csv"
+    file = "../donnees/countries-codes.csv"
     
     conn = db_connect()
     inject_csv(conn = conn, file=file)
