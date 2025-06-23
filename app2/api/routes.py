@@ -1,31 +1,13 @@
-from fastapi import FastAPI, HTTPException, Query
-from typing import List
-from pydantic import BaseModel
+from models.crudpostgres import db_connect, db_close
 from sqlalchemy import text
-from scripts.crud import db_connect, db_close
+from fastapi import APIRouter, HTTPException, Query
+from schemas.games import GameShort, GameWithGenres
+from typing import List
 
-app = FastAPI(
-    title="API Jeux Vidéo",
-    description="Une API simple pour gérer les données des jeux vidéo",
-    version="1.0.0"
-)
+# parametre a voir prefix="/api/v1", tags=["games"]
+router = APIRouter()
 
-# Modèle Pydantic pour valider les données
-class GameShort(BaseModel):
-    id: int
-    name: str
-
-class GameWithGenres(BaseModel):
-    name: str
-    genres: List[str]
-
-
-@app.get("/")
-def welcome():
-    """Page d'accueil de l'API"""
-    return {"message": "Bienvenue sur l'API Jeux Vidéo ! 🎮"}
-
-@app.get("/games", response_model=List[GameShort])
+@router.get("/games", response_model=List[GameShort])
 def get_games(
     page: int = Query(1, description="Numéro de la page", ge=1),
     per_page: int = Query(10, description="Nombre d'éléments par page", le=100)
@@ -43,7 +25,7 @@ def get_games(
     finally:
         db_close(conn)
 
-@app.get("/games/genre/{genre}", response_model=List[GameWithGenres])
+@router.get("/games/genre/{genre}", response_model=List[GameWithGenres])
 def get_games_by_genre(
     genre: str,
     page: int = Query(1, description="Numéro de la page", ge=1),
@@ -69,8 +51,3 @@ def get_games_by_genre(
         return games
     finally:
         db_close(conn)
-
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001)

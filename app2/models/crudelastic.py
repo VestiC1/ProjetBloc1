@@ -1,7 +1,8 @@
 from elasticsearch import Elasticsearch
-from app.config import elasticsearch_config
+from config import elasticsearch_config
 from pprint import pprint
 import json
+
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 

@@ -1,9 +1,9 @@
 import requests
-from .crud import db_connect, add_company, add_genre, add_platform, add_game, add_game_platform, add_game_genre, add_game_company, db_close
-from app.config import igdb_config
+from .crudpostgres import db_connect, add_company, add_genre, add_platform, add_game, add_game_platform, add_game_genre, add_game_company, db_close
+from .crudelastic import create_index, create_document, index_mapping
+from config import igdb_config
 from pprint import pprint
 from datetime import datetime
-from .elastic import create_index, create_document, index_mapping
 
 
 class EndOfPageError(Exception):
@@ -237,3 +237,4 @@ if __name__ == "__main__":
                 print("\n", e)
                 done = True
         print()
+        

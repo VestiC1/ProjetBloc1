@@ -47,7 +47,7 @@ def main():
     base_url = "https://opencritic.com/browse/all/2024"
 
     all_games = scrape_all_pages(base_url)
-    save_to_csv(all_games, 'donnees/opencritic_games.csv')
+    save_to_csv(all_games, '../donnees/opencritic_games.csv')
 
     print("Les données ont été enregistrées dans opencritic_games.csv")
 
