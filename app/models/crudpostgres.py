@@ -113,6 +113,18 @@ def create_game_companies(conn):
     """))
     conn.commit()
 
+def create_users(conn):
+    conn.execute(text("""
+        CREATE TABLE IF NOT EXISTS "users" (
+            "id" SERIAL PRIMARY KEY,
+            "email" VARCHAR(255) UNIQUE NOT NULL,
+            "password_hash" VARCHAR(255) NOT NULL,
+            "is_active" BOOLEAN DEFAULT TRUE,
+            "role" VARCHAR(50) DEFAULT 'user'
+        );
+    """))
+    conn.commit()
+
 def create_extension_pg_trgm(conn):
     conn.execute(text("""
         CREATE EXTENSION IF NOT EXISTS pg_trgm;
@@ -128,17 +140,25 @@ def create_all(conn):
     create_game_platforms(conn)
     create_game_genres(conn)
     create_game_companies(conn)
+    create_users(conn)
     create_extension_pg_trgm(conn)
 
+def drop_users(conn):
+    conn.execute(text("""
+        DROP TABLE IF EXISTS "users" CASCADE;
+    """))
+    conn.commit()
+
 def drop_all(conn):
-    conn.execute(text("DROP TABLE IF EXISTS \"Game_Company\" CASCADE;"))
-    conn.execute(text("DROP TABLE IF EXISTS \"Game_Genre\" CASCADE;"))
-    conn.execute(text("DROP TABLE IF EXISTS \"Game_Plateform\" CASCADE;"))
-    conn.execute(text("DROP TABLE IF EXISTS \"Game\" CASCADE;"))
-    conn.execute(text("DROP TABLE IF EXISTS \"Company\" CASCADE;"))
-    conn.execute(text("DROP TABLE IF EXISTS \"Genre\" CASCADE;"))
-    conn.execute(text("DROP TABLE IF EXISTS \"Plateform\" CASCADE;"))
-    conn.execute(text("DROP TABLE IF EXISTS \"country\" CASCADE;"))
+    conn.execute(text('DROP TABLE IF EXISTS "Game_Company" CASCADE;'))
+    conn.execute(text('DROP TABLE IF EXISTS "Game_Genre" CASCADE;'))
+    conn.execute(text('DROP TABLE IF EXISTS "Game_Plateform" CASCADE;'))
+    conn.execute(text('DROP TABLE IF EXISTS "Game" CASCADE;'))
+    conn.execute(text('DROP TABLE IF EXISTS "Company" CASCADE;'))
+    conn.execute(text('DROP TABLE IF EXISTS "Genre" CASCADE;'))
+    conn.execute(text('DROP TABLE IF EXISTS "Plateform" CASCADE;'))
+    conn.execute(text('DROP TABLE IF EXISTS "country" CASCADE;'))
+    conn.execute(text('DROP TABLE IF EXISTS "users" CASCADE;'))
     conn.commit()
 
 def add_country(conn, id, name, lat, long):
@@ -207,6 +227,7 @@ def add_game_company(conn, id_game, id_company, developer, publisher):
 
 if __name__ == "__main__":
     conn = db_connect()
-    drop_all(conn)
+    #drop_all(conn)
+    #drop_users(conn)
     create_all(conn)
     db_close(conn)

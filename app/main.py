@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from api.routes import router
+from api.routes import router as games_router
+from api.auth_routes import router as auth_router
 
 
 app = FastAPI(
@@ -9,7 +10,8 @@ app = FastAPI(
 )
 
 # Inclure les routes
-app.include_router(router)
+app.include_router(games_router)
+app.include_router(auth_router)
 
 @app.get("/")
 def welcome():
