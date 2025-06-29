@@ -204,7 +204,7 @@ def map_and_insert_data(games):
             #pprint(game)
             elastic_data, postgres_data =extract_data(game)
             #pprint(elastic_data)
-            #pprint(elastic_data)
+            #pprint(postgres_data)
             insert_elasticsearch(**elastic_data)
             insert_postgres(conn, data=postgres_data)
 
@@ -237,4 +237,3 @@ if __name__ == "__main__":
                 print("\n", e)
                 done = True
         print()
-        
