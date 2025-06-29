@@ -165,3 +165,26 @@ class AuthService:
             )
         finally:
             db_close(conn)
+            
+    @staticmethod
+    def delete_user(user_id: int):
+        """Supprimer un utilisateur de la base de données"""
+        conn = db_connect()
+        try:
+            # Exécuter la requête de suppression
+            result = conn.execute(
+                text("DELETE FROM \"users\" WHERE id = :user_id RETURNING id;"),
+                {"user_id": user_id}
+            )
+            deleted_user = result.fetchone()
+
+            if not deleted_user:
+                raise ValidationError("Utilisateur non trouvé")
+
+            conn.commit()
+            return success_response(message="Utilisateur supprimé avec succès")
+        except Exception as e:
+            conn.rollback()
+            raise Exception(f"Erreur lors de la suppression de l'utilisateur: {str(e)}")
+        finally:
+            db_close(conn)

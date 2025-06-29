@@ -15,17 +15,24 @@ es = Elasticsearch(
     ssl_show_warn=False # Désactive les avertissements SSL
 )
 
-router = APIRouter(prefix="/api/v1", tags=["games"])
+router = APIRouter(tags=["Games"])
 
 # ENDPOINTS PROTÉGÉS (authentification requise)
 
-@router.get("/games", response_model=List[GameShort])
+@router.get("/games", response_model=List[GameShort], summary="Récupérer une liste paginée des jeux vidéo")
 def get_games(
     page: int = Query(1, description="Numéro de la page", ge=1),
     per_page: int = Query(10, description="Nombre d'éléments par page", le=100),
     current_user: User = Depends(require_user_or_admin)  # 🔒 Authentification requise
 ):
-    """Récupérer les jeux avec pagination"""
+    """
+    Récupère une liste paginée des jeux vidéo disponibles.
+
+    - **page**: Le numéro de la page à récupérer.
+    - **per_page**: Le nombre d'éléments à retourner par page.
+
+    Retourne une liste de jeux vidéo avec leurs noms et identifiants.
+    """
     offset = (page - 1) * per_page
     conn = db_connect()
     try:
@@ -38,12 +45,53 @@ def get_games(
     finally:
         db_close(conn)
 
-@router.get("/games/{game_id}", response_model=GameDetail)
+@router.get("/games/{game_id}/name-storyline", summary="Récupérer le nom et le scénario d'un jeu spécifique")
+def get_combined_game_details(
+    game_id: int,
+    current_user: User = Depends(require_user_or_admin)
+):
+    """
+    Récupère les détails combinés d'un jeu spécifique en utilisant PostgreSQL et Elasticsearch.
+
+    - **game_id**: L'identifiant du jeu dont on veut récupérer les détails.
+
+    Retourne le nom du jeu ainsi que le scénario associé.
+    """
+    conn = db_connect()
+    try:
+        # Récupérer les détails du jeu depuis PostgreSQL
+        pg_result = conn.execute(text('SELECT id, name FROM "Game" WHERE id = :game_id;'), {"game_id": game_id})
+        game = pg_result.fetchone()
+
+        if not game:
+            raise HTTPException(status_code=404, detail="Jeu non trouvé dans PostgreSQL")
+
+        game_details = dict(game._mapping)
+
+        # Récupérer la storyline depuis Elasticsearch
+        try:
+            es_response = es.get(index="games", id=game_id)
+            game_details['storyline'] = es_response['_source'].get('storyline', 'No storyline available')
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Erreur lors de la récupération des détails du jeu depuis Elasticsearch: {str(e)}")
+
+        return game_details
+
+    finally:
+        db_close(conn)
+
+@router.get("/games/{game_id}/full-info", response_model=GameDetail, summary="Récupérer toutes les informations d'un jeu spécifique")
 def get_game(
     game_id: int,
     current_user: User = Depends(require_user_or_admin)  # 🔒 Authentification requise
 ):
-    """Récupérer les détails d'un jeu spécifique"""
+    """
+    Récupère les détails d'un jeu spécifique depuis PostgreSQL.
+
+    - **game_id**: L'identifiant du jeu dont on veut récupérer les détails.
+
+    Retourne le nom, le lien vers la pochette, la note IGDB, le nombre de vote, la note OpenCritic, le ou les genres, la ou les plateformes et les entreprises (éditeurs et/ou développeurs).
+    """
     conn = db_connect()
     try:
         result = conn.execute(text('''
@@ -69,12 +117,18 @@ def get_game(
     finally:
         db_close(conn)
 
-@router.get("/games/{game_id}/details")
+@router.get("/games/{game_id}/narrative-info", summary="Récupérer le résumé, le scénario et les mots-clés associés d'un jeu spécifique")
 def get_game_details(
     game_id: int,
     current_user: User = Depends(require_user_or_admin)
 ):
-    """Récupérer les détails d'un jeu spécifique depuis Elasticsearch"""
+    """
+    Récupère les détails textuels d'un jeu spécifique depuis Elasticsearch.
+
+    - **game_id**: L'identifiant du jeu dont on veut récupérer les détails.
+
+    Retourne les détails textuels du jeu : le résumé, le scénario et les mots-clés.
+    """
     try:
         # Récupérer le document correspondant au game_id
         response = es.get(index="games", id=game_id)
@@ -90,11 +144,15 @@ def get_game_details(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur lors de la récupération des détails du jeu: {str(e)}")
 
-@router.get("/genres", response_model=List[str])
+@router.get("/genres", response_model=List[str], summary="Récupérer la liste des genres de jeux vidéo")
 def get_genres(
     current_user: User = Depends(require_user_or_admin)  # 🔒 Authentification requise
 ):
-    """Récupérer la liste des genres"""
+    """
+    Récupère la liste des genres de jeux vidéo disponibles.
+
+    Retourne une liste de tous les genres disponibles pour les jeux vidéo présent dans la base de données.
+    """
     conn = db_connect()
     try:
         result = conn.execute(text('SELECT name FROM "Genre";'))
@@ -103,14 +161,22 @@ def get_genres(
     finally:
         db_close(conn)
 
-@router.get("/games/genre/{genre}", response_model=List[GameWithGenres])
+@router.get("/games/{genre}", response_model=List[GameWithGenres], summary="Récupérer les jeux par genre avec pagination")
 def get_games_by_genre(
     genre: str,
     page: int = Query(1, description="Numéro de la page", ge=1),
     per_page: int = Query(10, description="Nombre d'éléments par page", le=100),
     current_user: User = Depends(require_user_or_admin)  # 🔒 Authentification requise
 ):
-    """Récupérer les jeux par genre avec pagination"""
+    """
+    Récupère une liste paginée des jeux vidéo d'un genre spécifique.
+
+    - **genre**: Le genre des jeux à récupérer.
+    - **page**: Le numéro de la page à récupérer.
+    - **per_page**: Le nombre d'éléments à retourner par page.
+
+    Retourne une liste de jeux vidéo du genre spécifié.
+    """
     offset = (page - 1) * per_page
     conn = db_connect()
     try:
