@@ -6,7 +6,7 @@ from api.auth_routes import router as auth_router
 app = FastAPI(
     title="VestimLib - API Jeux Vidéo",
     description="""
-    Bienvenue sur l'API Jeux Vidéo ! 🕹️
+    Bienvenue sur l'API Jeux Vidéo !
 
     Cette API vous permet de gérer et d'explorer des informations sur les jeux vidéo.
     Pour accéder aux fonctionnalités de l'API, vous devez d'abord créer un compte si vous n'en avez pas.
@@ -32,7 +32,7 @@ def welcome():
     Retourne un message de bienvenue et des instructions pour accéder aux fonctionnalités de l'API.
     """
     return {
-        "message": "Bienvenue sur VestimLib l'API Jeux Vidéo ! 🕹️",
+        "message": "Bienvenue sur VestimLib l'API Jeux Vidéo !",
         "description": "Cette API vous permet de gérer et d'explorer des informations sur les jeux vidéo.",
         "instructions": "Pour accéder aux fonctionnalités de l'API, vous devez d'abord créer un compte si vous n'en avez pas. Vous trouverez toutes les informations sur `/docs` pour obtenir un token d'accès.",
     }
