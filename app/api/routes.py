@@ -23,7 +23,7 @@ router = APIRouter(tags=["Games"])
 def get_games(
     page: int = Query(1, description="Numéro de la page", ge=1),
     per_page: int = Query(10, description="Nombre d'éléments par page", le=100),
-    current_user: User = Depends(require_user_or_admin)  # 🔒 Authentification requise
+    current_user: User = Depends(require_user_or_admin)  # Authentification requise
 ):
     """
     Récupère une liste paginée des jeux vidéo disponibles.
@@ -83,7 +83,7 @@ def get_combined_game_details(
 @router.get("/games/{game_id}/full-info", response_model=GameDetail, summary="Récupérer toutes les informations d'un jeu spécifique")
 def get_game(
     game_id: int,
-    current_user: User = Depends(require_user_or_admin)  # 🔒 Authentification requise
+    current_user: User = Depends(require_user_or_admin)  # Authentification requise
 ):
     """
     Récupère les détails d'un jeu spécifique depuis PostgreSQL.
@@ -146,7 +146,7 @@ def get_game_details(
 
 @router.get("/genres", response_model=List[str], summary="Récupérer la liste des genres de jeux vidéo")
 def get_genres(
-    current_user: User = Depends(require_user_or_admin)  # 🔒 Authentification requise
+    current_user: User = Depends(require_user_or_admin)  # Authentification requise
 ):
     """
     Récupère la liste des genres de jeux vidéo disponibles.
@@ -166,7 +166,7 @@ def get_games_by_genre(
     genre: str,
     page: int = Query(1, description="Numéro de la page", ge=1),
     per_page: int = Query(10, description="Nombre d'éléments par page", le=100),
-    current_user: User = Depends(require_user_or_admin)  # 🔒 Authentification requise
+    current_user: User = Depends(require_user_or_admin)  # Authentification requise
 ):
     """
     Récupère une liste paginée des jeux vidéo d'un genre spécifique.
