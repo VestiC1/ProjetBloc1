@@ -227,7 +227,7 @@ def add_game_company(conn, id_game, id_company, developer, publisher):
 
 if __name__ == "__main__":
     conn = db_connect()
-    #drop_all(conn)
+    drop_all(conn)
     #drop_users(conn)
     create_all(conn)
     db_close(conn)

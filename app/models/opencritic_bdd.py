@@ -10,7 +10,7 @@ def read_csv(file_path):
             games.append({"name": row["name"], "rating_opencritic": row["rating"]})
     return games
 
-def update_opencritic_ratings(games_csv):
+def update_opencritic_ratings(games_csv, min_similarity=0.7):
     conn = db_connect()
     try:
         for game in games_csv:
@@ -21,10 +21,10 @@ def update_opencritic_ratings(games_csv):
             result = conn.execute(text("""
                 SELECT id, name, similarity(name, :name) AS sim
                 FROM "Game"
-                WHERE name %> :name
+                WHERE name %> :name AND similarity(name, :name) >= :min_similarity
                 ORDER BY sim DESC
                 LIMIT 1
-            """), {"name": name}).fetchone()
+            """), {"name": name, "min_similarity": min_similarity}).fetchone()
 
             if result:
                 game_id, game_name, game_sim = result

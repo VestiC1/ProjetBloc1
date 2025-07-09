@@ -64,9 +64,15 @@ docker ps
 lazydocker
 ```
 
+## Lancement de l'API avec FAST API
+Une fois dans le dossier App :
+```bash
+python3 main.py
+```
+
 ## Extraction des Données
 
-Ce projet utilise plusieurs sources de données, notamment des API externes, des fichiers CSV, et des bases de données relationnelles et non relationnelles. Voici comment les données sont extraites et traitées :
+Ce projet utilise plusieurs sources de données, notamment une API externe, un fichier CSV et une bases de données relationnelle et non relationnelle. Voici comment les données sont extraites et traitées :
 
 - **Sélection** : Les données sont sélectionnées en utilisant des requêtes SQL pour PostgreSQL et des requêtes spécifiques pour Elasticsearch.
 - **Filtrage** : Les données sont filtrées pour ne récupérer que les informations pertinentes pour le projet.
@@ -109,7 +115,7 @@ Les données sont traitées en conformité avec le RGPD pour assurer la protecti
 
 ## API
 
-L'API est développée en utilisant FastAPI et est documentée avec Swagger.
+L'API est développée en utilisant FastAPI et est documentée avec le Swagger.
 
 - **Points de Terminaison** : L'API offre plusieurs points de terminaison pour accéder aux données des jeux vidéo.
 - **Règles d'Authentification** : Les points de terminaison sont sécurisés avec une authentification JWT.
