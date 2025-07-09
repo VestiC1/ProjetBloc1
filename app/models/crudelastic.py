@@ -138,7 +138,7 @@ if __name__ == "__main__":
     #check_index_exists("games")
     #get_index_info("games")
     #delete_index("games")
-    #count_documents("games")
+    count_documents("games")
 
     # Exemple de document
     game_document = {
@@ -152,7 +152,7 @@ if __name__ == "__main__":
     #create_document("games", 1, game_document)
 
     # Lister les documents
-    list_documents("games")
+    #list_documents("games")
 
     # Récupérer un document
     #get_document("games", 1)
